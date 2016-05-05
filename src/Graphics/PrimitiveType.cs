@@ -33,5 +33,11 @@ namespace Microsoft.Xna.Framework.Graphics
 		/// Renders the vertices as a single polyline; the count may be any positive integer.
 		/// </summary>
 		LineStrip,
+
+		/// Modification for EDGEFX
+		/// <summary>
+		/// Treats each vertex as a single point. Vertex n defines point n. N points are drawn.
+		/// </summary>
+		Points
 	}
 }
