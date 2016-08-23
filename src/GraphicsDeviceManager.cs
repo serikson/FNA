@@ -9,22 +9,20 @@
 
 #region Using Statements
 using System;
-
 using Microsoft.Xna.Framework.Graphics;
+
 #endregion
 
 namespace Microsoft.Xna.Framework
 {
 	public class GraphicsDeviceManager : IGraphicsDeviceService, IDisposable, IGraphicsDeviceManager
 	{
+		#region Public Events
+		public event EventHandler<EventArgs> Disposed;
+		#endregion
+
 		#region Public Properties
-
-		public GraphicsProfile GraphicsProfile
-		{ 
-			get;
-			set;
-		}
-
+		public GraphicsProfile GraphicsProfile { get; set; }
 		public GraphicsDevice GraphicsDevice
 		{
 			get
@@ -35,114 +33,55 @@ namespace Microsoft.Xna.Framework
 				 * -flibit
 				 */
 				if (graphicsDevice == null)
-				{
 					((IGraphicsDeviceManager) this).CreateDevice();
-				}
 				return graphicsDevice;
 			}
 		}
-
-		public bool IsFullScreen
-		{
-			get;
-			set;
-		}
-
-		public bool PreferMultiSampling
-		{
-			get;
-			set;
-		}
-
-		public SurfaceFormat PreferredBackBufferFormat
-		{
-			get;
-			set;
-		}
-
-		public int PreferredBackBufferHeight
-		{
-			get;
-			set;
-		}
-
-		public int PreferredBackBufferWidth
-		{
-			get;
-			set;
-		}
-
-		public DepthFormat PreferredDepthStencilFormat
-		{
-			get;
-			set;
-		}
-
-		public bool SynchronizeWithVerticalRetrace
-		{
-			get;
-			set;
-		}
-
+		public bool IsFullScreen { get; set; }
+		public bool PreferMultiSampling { get; set; }
+		public SurfaceFormat PreferredBackBufferFormat { get; set; }
+		public int PreferredBackBufferHeight { get; set; }
+		public int PreferredBackBufferWidth { get; set; }
+		public DepthFormat PreferredDepthStencilFormat { get; set; }
+		public bool SynchronizeWithVerticalRetrace { get; set; }
 		public DisplayOrientation SupportedOrientations
 		{
-			get
-			{
-				return supportedOrientations;
-			}
+			get { return supportedOrientations; }
 			set
 			{
 				supportedOrientations = value;
 				if (game.Window != null)
-				{
 					game.Window.SetSupportedOrientations(supportedOrientations);
-				}
 			}
 		}
-
 		#endregion
 
 		#region Private Variables
-
 		private Game game;
 		private GraphicsDevice graphicsDevice;
 		private DisplayOrientation supportedOrientations;
 		private bool drawBegun;
 		private bool disposed;
-
 		#endregion
 
 		#region Public Static Fields
-
 		public static readonly int DefaultBackBufferWidth = 800;
 		public static readonly int DefaultBackBufferHeight = 480;
-
-		#endregion
-
-		#region Public Events
-
-		public event EventHandler<EventArgs> Disposed;
-
 		#endregion
 
 		#region IGraphicsDeviceService Events
-
 		public event EventHandler<EventArgs> DeviceCreated;
 		public event EventHandler<EventArgs> DeviceDisposing;
 		public event EventHandler<EventArgs> DeviceReset;
 		public event EventHandler<EventArgs> DeviceResetting;
 		public event EventHandler<PreparingDeviceSettingsEventArgs> PreparingDeviceSettings;
-
 		#endregion
 
 		#region Public Constructor
-
 		public GraphicsDeviceManager(Game game)
 		{
 			if (game == null)
-			{
 				throw new ArgumentNullException("The game cannot be null!");
-			}
 
 			this.game = game;
 
@@ -158,28 +97,22 @@ namespace Microsoft.Xna.Framework
 
 			PreferMultiSampling = false;
 
-			if (game.Services.GetService(typeof(IGraphicsDeviceManager)) != null)
-			{
+			if (game.Services.GetService(typeof (IGraphicsDeviceManager)) != null)
 				throw new ArgumentException("Graphics Device Manager Already Present");
-			}
 
-			game.Services.AddService(typeof(IGraphicsDeviceManager), this);
-			game.Services.AddService(typeof(IGraphicsDeviceService), this);
+			game.Services.AddService(typeof (IGraphicsDeviceManager), this);
+			game.Services.AddService(typeof (IGraphicsDeviceService), this);
 		}
-
 		#endregion
 
 		#region Deconstructor
-
 		~GraphicsDeviceManager()
 		{
 			Dispose(false);
 		}
-
 		#endregion
 
 		#region Dispose Methods
-
 		protected virtual void Dispose(bool disposing)
 		{
 			if (!disposed)
@@ -194,30 +127,23 @@ namespace Microsoft.Xna.Framework
 					}
 				}
 				if (Disposed != null)
-				{
 					Disposed(this, EventArgs.Empty);
-				}
 				disposed = true;
 			}
 		}
-
 		void IDisposable.Dispose()
 		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
-
 		#endregion
 
 		#region Public Methods
-
 		public void ApplyChanges()
 		{
 			// Calling ApplyChanges() before CreateDevice() should have no effect.
 			if (graphicsDevice == null)
-			{
 				return;
-			}
 
 			// Recreate device information before resetting
 			GraphicsDeviceInformation gdi = new GraphicsDeviceInformation();
@@ -240,9 +166,7 @@ namespace Microsoft.Xna.Framework
 			gdi.PresentationParameters.IsFullScreen =
 				IsFullScreen;
 			if (!PreferMultiSampling)
-			{
 				gdi.PresentationParameters.MultiSampleCount = 0;
-			}
 			else if (gdi.PresentationParameters.MultiSampleCount == 0)
 			{
 				/* XNA4 seems to have an upper limit of 8, but I'm willing to
@@ -253,14 +177,14 @@ namespace Microsoft.Xna.Framework
 				gdi.PresentationParameters.MultiSampleCount = Math.Min(
 					GraphicsDevice.GLDevice.MaxMultiSampleCount,
 					8
-				);
+					);
 			}
 
 			// Give the user a chance to override the above settings.
 			OnPreparingDeviceSettings(
 				this,
 				new PreparingDeviceSettingsEventArgs(gdi)
-			);
+				);
 
 			// We're about to reset a device, notify the application.
 			OnDeviceResetting(this, EventArgs.Empty);
@@ -268,19 +192,19 @@ namespace Microsoft.Xna.Framework
 			// Make the Platform device changes.
 			game.Window.BeginScreenDeviceChange(
 				gdi.PresentationParameters.IsFullScreen
-			);
+				);
 			game.Window.EndScreenDeviceChange(
 				gdi.Adapter.Description, // FIXME: Should be Name! -flibit
 				gdi.PresentationParameters.BackBufferWidth,
 				gdi.PresentationParameters.BackBufferHeight
-			);
+				);
 
 			// Apply the PresentInterval.
 			FNAPlatform.SetPresentationInterval(
-				SynchronizeWithVerticalRetrace ?
-					gdi.PresentationParameters.PresentationInterval :
-					PresentInterval.Immediate
-			);
+				SynchronizeWithVerticalRetrace
+					? gdi.PresentationParameters.PresentationInterval
+					: PresentInterval.Immediate
+				);
 
 			// Reset!
 			GraphicsDevice.Reset(gdi.PresentationParameters, gdi.Adapter);
@@ -288,17 +212,14 @@ namespace Microsoft.Xna.Framework
 			// We just reset a device, notify the application.
 			OnDeviceReset(this, EventArgs.Empty);
 		}
-
 		public void ToggleFullScreen()
 		{
 			IsFullScreen = !IsFullScreen;
 			ApplyChanges();
 		}
-
 		#endregion
 
 		#region Internal Methods
-
 		internal void INTERNAL_ResizeGraphicsDevice(int width, int height)
 		{
 			PresentationParameters pp = GraphicsDevice.PresentationParameters;
@@ -318,57 +239,40 @@ namespace Microsoft.Xna.Framework
 				OnDeviceReset(this, EventArgs.Empty);
 			}
 		}
-
 		#endregion
 
 		#region Protected Methods
-
 		protected virtual void OnDeviceCreated(object sender, EventArgs args)
 		{
 			if (DeviceCreated != null)
-			{
 				DeviceCreated(sender, args);
-			}
 		}
-
 		protected virtual void OnDeviceDisposing(object sender, EventArgs args)
 		{
 			if (DeviceDisposing != null)
-			{
 				DeviceDisposing(sender, args);
-			}
 		}
-
 		protected virtual void OnDeviceReset(object sender, EventArgs args)
 		{
 			if (DeviceReset != null)
-			{
 				DeviceReset(sender, args);
-			}
 		}
-
 		protected virtual void OnDeviceResetting(object sender, EventArgs args)
 		{
 			if (DeviceResetting != null)
-			{
 				DeviceResetting(sender, args);
-			}
 		}
-
 		protected virtual void OnPreparingDeviceSettings(
 			object sender,
 			PreparingDeviceSettingsEventArgs args
-		) {
+			)
+		{
 			if (PreparingDeviceSettings != null)
-			{
 				PreparingDeviceSettings(sender, args);
-			}
 		}
-
 		#endregion
 
 		#region IGraphicsDeviceManager Methods
-
 		void IGraphicsDeviceManager.CreateDevice()
 		{
 			// Set the default device information
@@ -384,7 +288,7 @@ namespace Microsoft.Xna.Framework
 			OnPreparingDeviceSettings(
 				this,
 				new PreparingDeviceSettingsEventArgs(gdi)
-			);
+				);
 
 			// Apply these settings to this GraphicsDeviceManager
 			GraphicsProfile = gdi.GraphicsProfile;
@@ -396,24 +300,20 @@ namespace Microsoft.Xna.Framework
 				gdi.Adapter,
 				gdi.GraphicsProfile,
 				gdi.PresentationParameters
-			);
+				);
 			ApplyChanges();
 
 			// Call the DeviceCreated Event
 			OnDeviceCreated(this, EventArgs.Empty);
 		}
-
 		bool IGraphicsDeviceManager.BeginDraw()
 		{
 			if (graphicsDevice == null)
-			{
 				return false;
-			}
 
 			drawBegun = true;
 			return true;
 		}
-
 		void IGraphicsDeviceManager.EndDraw()
 		{
 			if (graphicsDevice != null && drawBegun)
@@ -422,7 +322,6 @@ namespace Microsoft.Xna.Framework
 				graphicsDevice.Present();
 			}
 		}
-
 		#endregion
 	}
 }

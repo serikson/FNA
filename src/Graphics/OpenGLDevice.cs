@@ -4099,7 +4099,7 @@ namespace Microsoft.Xna.Framework.Graphics
 						return primitiveCount * 2;
 					case PrimitiveType.LineStrip:
 						return primitiveCount + 1;
-					case PrimitiveType.Points:
+					case PrimitiveType.Points:				// -- Modification for EDGEFX
 						return primitiveCount;
 				}
 				throw new NotSupportedException();
