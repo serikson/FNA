@@ -24,7 +24,7 @@
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <ConsolePause>False</ConsolePause>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <Prefer32Bit>false</Prefer32Bit>
@@ -416,4 +416,9 @@
       <LogicalName>Microsoft.Xna.Framework.Graphics.Effect.Resources.YUVToRGBAEffect.fxb</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
+  <PropertyGroup>
+    <PostBuildEvent>::copy "$(TargetPath)" "$(SolutionDir)..\..\Lib\FNA\"
+::copy "$(TargetDir)$(TargetName).dll.config" "$(SolutionDir)..\..\Lib\FNA\"
+::if $(ConfigurationName)==Debug copy "$(TargetDir)$(TargetName).pdb" "$(SolutionDir)..\..\Lib\FNA"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
